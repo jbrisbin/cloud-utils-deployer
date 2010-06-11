@@ -46,3 +46,8 @@ Invoking the Deployment Mechanism
 To deploy a file (maybe, depending on MD5 sums and ETags), you first run the "monitor" script, which checks whether or not anything needs to be deployed. It will then execute whatever is defined in the YAML file's ":deploy" section. In this case, we're calling the other Ruby script in this package: "deploy", passing it the "-e" switch, which tells it to respect ETags and not download anything if there has been no change since the last deployment, and using the "%s" replacement character, where the artifact name will be passed when the message is processed.
 
 When the deploy script is called by the monitor script, it downloads the artifact from the URL you configured in deploy.yml and either copies it directly to the list of destinations you give it, or unzips the file (if the artifact ends in ".tar.gz", it will be untarred, otherwise it will be unzipped) if you have configured "unzip: true".
+
+License
+-----
+
+Apache 2.0 licensed. Just like the other cloud utilities.
