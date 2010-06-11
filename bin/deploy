@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+$:.unshift File.expand_path("../../lib", __FILE__)
+# puts "#{$:}"
+
+require "optparse"
+require "yaml"
+require "cloud/logger"
+require "cloud/deploy/artifact"
+
+# Set command-line options
+options = {}
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: deploy [options] artifact1 [artifact2] [...]"
+
+  options[:config] = '/etc/cloud/deploy.yml'
+  opts.on('-c', '--config CONFIG', 'Config file to read') do |config|
+    options[:config] = config
+  end
+
+  options[:etags] = false
+  opts.on('-e', '--etags', 'Respect ETag headers when downloading resources.') do
+    options[:etags] = true
+  end
+
+  options[:force] = false
+  opts.on('-f', '--force', 'Download and deploy this file irregardless of ETags and MD5 sums.') do
+    options[:force] = true
+  end
+
+  opts.on('-h', '--help', 'Display this help') do
+    puts opts
+    exit
+  end
+end
+optparse.parse!
+
+config = YAML.load_file(options[:config])
+
+ARGV.each do |arg|
+  artifact = Cloud::Deploy::Artifact.new
+  artifact.name = arg
+  artifact.uri = config[arg]['source']
+  artifact.local_paths = config[arg]['destination']
+  artifact.unzip = config[arg]['unzip']
+  artifact.force = options[:force]
+  artifact.use_etags = options[:etags]
+  if artifact.outdated?
+    artifact.deploy!
+  end
+end

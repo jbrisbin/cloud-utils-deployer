@@ -1,0 +1,12 @@
+# Webportal v3 Groovy/REST portal
+rest.war:
+  source: http://dev.cloud.npci.com/artifacts/rest.war
+  destination:
+    - /tmp/test1/rest
+    - /tmp/test2/rest
+
+rest.definitions:
+  unzip: true
+  source: http://dev.cloud.npci.com/artifacts/rest-definitions.tar.gz
+  destination:
+    - /tmp/test3

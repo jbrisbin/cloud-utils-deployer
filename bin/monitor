@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+$:.unshift File.expand_path("../../lib", __FILE__)
+
+require "optparse"
+require "yaml"
+require "cloud/logger"
+require "cloud/deploy"
+require "cloud/deploy/artifact"
+require "cloud/deploy/monitor"
+require "rubygems"
+require "mq"
+
+# Set command-line options
+options = {}
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: monitor [options] [artifact1] [artifact...]"
+
+  options[:config] = '/etc/cloud/monitor.yml'
+  opts.on('-c', '--config CONFIG', 'Config file to read') do |config|
+    options[:config] = config
+  end
+
+  options[:force] = false
+  opts.on('-f', '--force', 'Disregard MD5 sums and force deployment') do
+    options[:force] = true
+  end
+
+  opts.on('-h', '--help', 'Display this help') do
+    puts opts
+    exit
+  end
+end
+optparse.parse!
+
+config = YAML.load_file(options[:config])
+em_thread = Thread.new { EM.run }
+
+# Use the name coming in on the command line or all of the configured names
+names = Hash.new
+if ARGV.size > 0
+	$log.info('deployer') { "Was passed artifacts to deploy, so using those: #{ARGV.join(', ')}" }
+	names.replace(ARGV)
+else
+	$log.info('deployer') { "Deploying all configured artifacts" }
+	names.replace(config)
+	names.delete_if { |k, v| k == "default" }
+end
+
+monitors = []
+names.each do |k, v|
+	mon = Cloud::Deploy::Monitor.new(config, k)
+	mon.deploy!
+	monitors << mon
+end
+em_thread.join(3)
+
+# Finish processing
+Cloud::Deploy.load_md5sums do |md5s|
+	monitors.each do |mon|
+		if !mon.artifact.nil?
+			deploy_cmd = config[mon.name][:deploy] % mon.artifact
+			already_seen = md5s[mon.md5sum].nil?
+			if !options[:force] and already_seen
+				$log.info(mon.name) { "MD5 sums match, so not deploying again" }
+			else
+				$log.info(mon.name) { "Deploying: #{mon.artifact} with hash: #{mon.md5sum} using: #{deploy_cmd}" }
+				`#{deploy_cmd}`
+			end
+		end
+	end
+end
