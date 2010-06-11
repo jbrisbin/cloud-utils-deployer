@@ -1,10 +1,10 @@
 default:
-  host: mq.cloud.npci.com
+  host: localhost
   port: 5672
-  user: cloud
-  password: vcloud
-  virtual_host: cloud
+  user: guest
+  password: guest
+  virtual_host: /
   exchange: vcloud.deployment.events
 
-rest.war:
-  :deploy: deploy -f -e -c /Users/jbrisbin/Development/Projects/Ruby/cloud-utils/etc/deploy.yml %s
+myapp.war:
+  :deploy: deploy -e %s

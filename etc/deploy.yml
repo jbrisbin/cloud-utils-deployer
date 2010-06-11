@@ -1,12 +1,12 @@
-# Webportal v3 Groovy/REST portal
-rest.war:
-  source: http://dev.cloud.npci.com/artifacts/rest.war
+myapp.war:
+  source: http://development/artifacts/myapp.war
   destination:
-    - /tmp/test1/rest
-    - /tmp/test2/rest
+    - /opt/tcServer/tcServer-6.0/tc1/webapps
+    - /opt/tcServer/tcServer-6.0/tc2/webapps
+    - /opt/tcServer/tcServer-6.0/tc3/webapps
 
-rest.definitions:
+myapp.html:
   unzip: true
-  source: http://dev.cloud.npci.com/artifacts/rest-definitions.tar.gz
+  source: http://development/artifacts/myapp-html.tar.gz
   destination:
-    - /tmp/test3
+    - /var/www/www.mycloud.mycompany.com/public
