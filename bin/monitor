@@ -25,6 +25,11 @@ optparse = OptionParser.new do |opts|
     options[:force] = true
   end
 
+  options[:timeout] = 5
+  opts.on('-t', '--timeout TIMEOUT', 'How many seconds to wait for subscriber threads to capture all messages') do |timeout|
+    options[:timeout] = timeout
+  end
+
   opts.on('-h', '--help', 'Display this help') do
     puts opts
     exit
@@ -52,7 +57,7 @@ names.each do |k, v|
 	mon.deploy!
 	monitors << mon
 end
-em_thread.join(3)
+em_thread.join(options[:timeout])
 
 # Finish processing
 Cloud::Deploy.load_md5sums do |md5s|

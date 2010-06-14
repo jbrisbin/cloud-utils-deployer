@@ -1,0 +1,14 @@
+CHANGELOG
+LICENSE
+README.markdown
+Rakefile
+bin/deploy
+bin/monitor
+cloud-utils.tmproj
+etc/deploy.yml
+etc/monitor.yml
+lib/cloud/deploy.rb
+lib/cloud/deploy/artifact.rb
+lib/cloud/deploy/monitor.rb
+lib/cloud/logger.rb
+Manifest
