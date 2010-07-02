@@ -6,5 +6,5 @@ default:
   virtual_host: /
   exchange: vcloud.deployment.events
 
-myapp.war:
+rest.war:
   :deploy: deploy -e %s
