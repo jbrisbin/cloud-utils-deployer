@@ -36,15 +36,19 @@ optparse.parse!
 
 config = YAML.load_file(options[:config])
 
-ARGV.each do |arg|
-  artifact = Cloud::Deploy::Artifact.new
-  artifact.name = arg
-  artifact.uri = config[arg]['source']
-  artifact.local_paths = config[arg]['destination']
-  artifact.unzip = config[arg]['unzip']
-  artifact.force = options[:force]
-  artifact.use_etags = options[:etags]
-  if artifact.outdated?
-    artifact.deploy!
+if !ARGV.nil?
+  ARGV.each do |arg|
+    artifact = Cloud::Deploy::Artifact.new
+    artifact.name = arg
+    artifact.uri = config[arg]['source']
+    artifact.local_paths = config[arg]['destination']
+    artifact.unzip = config[arg]['unzip']
+    artifact.force = options[:force]
+    artifact.use_etags = options[:etags]
+    if artifact.outdated?
+      artifact.deploy!
+    end
   end
+else
+  $log.debug("warn") { "No artifacts to deploy!" }
 end

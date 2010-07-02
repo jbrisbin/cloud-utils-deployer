@@ -43,10 +43,12 @@ em_thread = Thread.new { EM.run }
 # Use the name coming in on the command line or all of the configured names
 names = Hash.new
 if ARGV.size > 0
-	$log.info('deployer') { "Was passed artifacts to deploy, so using those: #{ARGV.join(', ')}" }
-	names.replace(ARGV)
+	$log.info('monitor') { "Was passed artifacts to deploy, so using those: #{ARGV.join(', ')}" }
+	ARGV.each do |arg|
+		names[arg] = {}
+	end
 else
-	$log.info('deployer') { "Deploying all configured artifacts" }
+	$log.info('monitor') { "Deploying all configured artifacts" }
 	names.replace(config)
 	names.delete_if { |k, v| k == "default" }
 end
@@ -61,16 +63,19 @@ em_thread.join(options[:timeout])
 
 # Finish processing
 Cloud::Deploy.load_md5sums do |md5s|
+	$log.debug('monitor') { "#{monitors.length} monitors configured" }
 	monitors.each do |mon|
 		if !mon.artifact.nil?
 			deploy_cmd = config[mon.name][:deploy] % mon.artifact
-			already_seen = md5s[mon.md5sum].nil?
+			already_seen = !md5s[mon.md5sum].nil?
 			if !options[:force] and already_seen
 				$log.info(mon.name) { "MD5 sums match, so not deploying again" }
 			else
-				$log.info(mon.name) { "Deploying: #{mon.artifact} with hash: #{mon.md5sum} using: #{deploy_cmd}" }
+				$log.info(mon.name) { "Deploying: #{mon.artifact} with hash: #{mon.md5sum} using: '#{deploy_cmd}'" }
 				`#{deploy_cmd}`
 			end
+		else
+			$log.info('monitor') { "No artifacts to deploy!" }
 		end
 	end
 end

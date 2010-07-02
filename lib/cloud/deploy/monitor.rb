@@ -45,8 +45,9 @@ module Cloud
 				$log.info(@name) { "Connecting to MQ h: #{host}, p: #{port}, u: #{user}, pw: #{pass}, v: #{vhost}, x: #{exchange}" }
 
 				AMQP.start(:host => host, :port => port, :user => user, :pass => pass, :vhost => vhost) do
-	        MQ.queue(@name).bind(@exchange).subscribe(:ack => true) do |headers, body|
+	        MQ.queue(@name, :durable => true, :auto_delete => false).bind(@exchange, :type => "topic", :durable => true).subscribe(:ack => true) do |headers, body|
 						@md5sum = headers.properties[:correlation_id]
+						$log.debug('monitor') { "MD5 sum: #{@md5sum}" }
 						@artifact = body
 					end
 				end
