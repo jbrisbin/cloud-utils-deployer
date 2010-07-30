@@ -1,2 +1,3 @@
-v1.0. Initial release.
+v1.2. Added -o option for unzip to suppress overwrite prompting.
 v1.1. Fixes for RabbitMQ 1.8.0 release, bug fixes.
+v1.0. Initial release.
