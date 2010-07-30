@@ -54,7 +54,7 @@ module Cloud
                 if @uri.request_uri[-6..-1] == "tar.gz"
                   `tar -zxf #{@temp_file} -C #{path}`
                 else
-                  `unzip -d #{path} #{@temp_file}`
+                  `unzip -o -d #{path} #{@temp_file}`
                 end
               else
                 $log.info(@name) { "Copying #{@name} to #{path}" }
